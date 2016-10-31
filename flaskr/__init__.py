@@ -69,6 +69,11 @@ def datasetSearch():
 	# Run GEO Search
 	return json.dumps(geoSearchResults)
 
+### 2.1.3 Dataset Upload
+@app.route('/datasetUpload', methods=['POST'])
+def datasetUpload():
+	# return ', '.join(dir(request.form)) add to db
+	return request.form['selected_dataset_id']
 
 
 #######################################################

@@ -17,7 +17,9 @@
 
 </div>
 
+<!-- Dataset Selection -->
 <div id="dataset-selection">
+
 	<!-- Search -->
 	<div id="dataset-search" style="display:none">
 		<!-- Title -->
@@ -41,7 +43,7 @@
 
 			<!-- Submit -->
 			<td width="5%" valign="top">
-				<button id="dataset-search-results-radio-button" type="button"> Submit </button> 
+				<button id="dataset-search-results-radio-button" class="dataset-search" type="button"> Submit </button> 
 			</td>
 
 		</table>
@@ -50,8 +52,46 @@
 
 	<!-- Manual -->
 	<div id="dataset-manual" style="display:none">
+
 		<!-- Title -->
 		<h3> Dataset Manual: </h3>
+
+		<!-- Form -->
+		<form id="dataset-manual-form">
+
+			<!-- Table -->
+			<table id="dataset-manual-table" action="/datasetSearch">
+
+				<!-- Dataset URL -->
+				<tr>
+					<td> <b> Dataset URL </b> </td>
+					<td> <input type="text" name="dataset_url" required> </td>
+				</tr>
+
+				<!-- Dataset Accession -->
+				<tr>
+					<td> <b> Dataset ID </b> </td>
+					<td> <input type="text" name="dataset_id" required> </td>
+				</tr>
+
+				<!-- Dataset Name -->
+				<tr>
+					<td> <b> Dataset Title </b> </td>
+					<td> <input type="text" name="dataset_title" required> </td>
+				</tr>
+
+				<!-- Database -->
+				<tr>
+					<td> <b> Database </b> </td>
+					<td> <input type="text" name="dataset_db" required> </td>
+				</tr>
+
+			</table>
+			
+			<!-- Button -->
+			<button id="dataset-manual-button" class="dataset-search" type="button"> Submit </button>
+
+		</form>
 
 	</div>
 </div>
@@ -109,7 +149,7 @@
 			var resultHtmlList = [];
 
 			// Loop Through Search Result Object
-			for (var i = 0; i < 6; i++){ //Object.keys(geoSearchObject).length
+			for (var i = 0; i < Object.keys(geoSearchObject).length; i++){ //
 
 				// Get Key Name
 				keyName = Object.keys(geoSearchObject)[i];
@@ -124,7 +164,7 @@
 				};
 
 				// Create String
-				var recordString = '"' + keyName +
+				var recordString =  keyName +
 							   		'"><div class="dataset-search-result" style="width:90%;vertical-align:middle;display:inline-block;padding-left:0.3cm"><b>'+
 							   		recordData['title'] + '</b><br>' +
 							   		summary +
@@ -142,7 +182,7 @@
 			};
 
 			// Define Separator String
-			var separatorString = '<input type="radio" name="selected_dataset" value="';
+			var separatorString = '<input type="radio" name="selected_dataset_id" value="';
 
 			// Join HTML List
 			var resultHtmlString = '<form id="dataset-search-results-radio-form">' + separatorString + resultHtmlList.join(separatorString) + '</form>';
@@ -151,11 +191,42 @@
 			return resultHtmlString;
 
 		} catch(err) {
-			
+
 			// Return No Results
 			return 'No search results.'
 		}
 	};
+
+	// 1.4 Dataset Submission
+	$('.dataset-search').click(function(){
+
+		// Check Dataset Selection Method Used
+		var datasetSelectionMethod = $('input:radio[name=dataset-selection-method]:checked').val();
+
+		// If Search
+		if (datasetSelectionMethod === 'search') {
+
+			// Get Form Data
+			var formData = {'selected_dataset_id': $('input:radio[name=selected_dataset_id]:checked').val()};
+
+		} else {
+
+			// Get Form Data
+			var formData = $('#dataset-manual-form').serialize();
+
+		};
+
+		// AJAX Request
+		$.ajax({
+			url: '/datasetUpload',
+			data: formData,
+			type: 'POST',
+			success: function(response){
+				window.alert(response);
+			}
+		});
+
+	})
 
 
 </script>
