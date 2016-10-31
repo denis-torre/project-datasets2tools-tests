@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<!-- Load JQuery -->
+<script src="{{ url_for('static', filename='static/lib/js/lib.js') }}"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<!-- Dataset Selection -->
+<div id="dataset-selection-ui">
+
+	<!-- Selection Form -->
+	<form id="dataset-selection-radio">
+		<b> Dataset selection: &nbsp </b>
+		<input type="radio" name="dataset-selection-method" value="search"> Search
+		<input type="radio" name="dataset-selection-method" value="manual"> Manual
+	</form>
+
+</div>
+
+<div id="dataset-selection">
+	<!-- Search -->
+	<div id="dataset-search" style="display:none">
+		<!-- Title -->
+		<h3> Dataset Search: </h3>
+
+		<!-- Table -->
+		<table id="dataset-search-table" width="100%">
+
+			<!-- Search Form -->
+			<td width="20%" valign="top">
+				<form id="dataset-search-form" action="/datasetSearch">
+					<input type="text" id="dataset-search-input" name="dataset_search_input">
+					<button type="button" id="dataset-search-button" form="dataset-search-results-radio-form"> Search! </button>
+				</form>
+			</td>
+
+			<!-- Results -->
+			<td width="80%" valign="top">
+				<div id="dataset-search-results" style="height:250px;overflow-y:scroll">&nbsp</div>
+			</td>
+
+			<!-- Submit -->
+			<td width="5%" valign="top">
+				<button id="dataset-search-results-radio-button" type="button"> Submit </button> 
+			</td>
+
+		</table>
+
+	</div>
+
+	<!-- Manual -->
+	<div id="dataset-manual" style="display:none">
+		<!-- Title -->
+		<h3> Dataset Manual: </h3>
+
+	</div>
+</div>
+
+<!-- Load JS Scripts -->
+<script type="text/javascript">
+
+	////////////////////////////////
+	///// 1. Dataset selection
+	////////////////////////////////
+
+	/// 1.1 Toggle Dataset Selection
+	$('#dataset-selection-radio').change(function(event){
+
+		// Get value
+		var selectionMethod = $(event.target).val();
+
+		// Toggle
+		if (selectionMethod === 'search'){
+			$('#dataset-search').show()
+			$('#dataset-manual').hide()
+		}
+		else
+		{
+			$('#dataset-search').hide()
+			$('#dataset-manual').show()
+		}
+	});
+
+	/// 1.2 Dataset Search Handler
+	$('#dataset-search-button').click(function(){
+		$.ajax({
+			url: '/datasetSearch',
+			data: $('#dataset-search-form').serialize(),
+			type: 'POST',
+			success: function(response){
+				// Get HTML String
+				var radioHtmlString = makeDatasetSelectionRadioTable(response);
+
+				// Insert Into Page
+				document.getElementById('dataset-search-results').innerHTML = radioHtmlString;
+			}
+		})
+	});
+
+	/// 1.3 Dataset Selection Table
+	function makeDatasetSelectionRadioTable(geoSearchJson, colnames=[]){
+
+		// Try
+		try {
+			// Convert JSON to JS Object
+			var geoSearchObject = JSON.parse(geoSearchJson);
+
+			// Initialize Search Result HTML List
+			var resultHtmlList = [];
+
+			// Loop Through Search Result Object
+			for (var i = 0; i < 6; i++){ //Object.keys(geoSearchObject).length
+
+				// Get Key Name
+				keyName = Object.keys(geoSearchObject)[i];
+
+				// Get Record
+				recordData = geoSearchObject[keyName];
+
+				// Get Brief Summary
+				var summary = recordData['summary'];
+				if (summary.length > 150){
+					summary = summary.substring(0, 150) + '...'
+				};
+
+				// Create String
+				var recordString = '"' + keyName +
+							   		'"><div class="dataset-search-result" style="width:90%;vertical-align:middle;display:inline-block;padding-left:0.3cm"><b>'+
+							   		recordData['title'] + '</b><br>' +
+							   		summary +
+							   		'<br> Accession: <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc="' + recordData['Accession'] + '">'
+							   		+ recordData['Accession'] + '</a>&nbsp&nbsp&nbsp' +
+							   		recordData['n_samples'] +
+							   		' samples <br> Organism: ' + 
+							   		recordData['taxon'] + 
+							   		'<br>' +
+							   		recordData['gdsType'] +
+							   		'</div><br><br>';
+
+				// Append to Array
+				resultHtmlList.push(recordString);
+			};
+
+			// Define Separator String
+			var separatorString = '<input type="radio" name="selected_dataset" value="';
+
+			// Join HTML List
+			var resultHtmlString = '<form id="dataset-search-results-radio-form">' + separatorString + resultHtmlList.join(separatorString) + '</form>';
+
+			// Return Result
+			return resultHtmlString;
+
+		} catch(err) {
+			
+			// Return No Results
+			return 'No search results.'
+		}
+	};
+
+
+</script>
