@@ -70,8 +70,8 @@
 
 				<!-- Dataset Accession -->
 				<tr>
-					<td> <b> Dataset ID </b> </td>
-					<td> <input type="text" name="dataset_id" required> </td>
+					<td> <b> Dataset Accession </b> </td>
+					<td> <input type="text" name="dataset_accession" required> </td>
 				</tr>
 
 				<!-- Dataset Name -->
@@ -80,13 +80,51 @@
 					<td> <input type="text" name="dataset_title" required> </td>
 				</tr>
 
+				<!-- Dataset Description -->
+				<tr>
+					<td> <b> Dataset Description </b> </td>
+					<td> <input type="text" name="dataset_description" required> </td>
+				</tr>
+
 				<!-- Database -->
 				<tr>
 					<td> <b> Database </b> </td>
-					<td> <input type="text" name="dataset_db" required> </td>
-				</tr>
+					<td>
+						<select id="database-selection" name="dataset_db">
+                         <!-- <select name="tool_id" class="selectpicker" title="Select..." data-width="50%"> -->
+                            {% for id, icon_url, name in db_dataframe[['db_id', 'db_icon_url', 'db_name']].as_matrix() %}
 
+	                            <option value="{{ id }}" class="database-selection-option" data-subtext="<img src='{{ icon_url }}', style='width:20px;height:20px;align:right'></img>"> {{ name }} </option>
+
+                            {% endfor %}
+                            	<option value="newdb" class="database-selection-option"> New... </option>
+                        </select>
+					</td>
+				</tr>
 			</table>
+
+				<!-- New Database Central -->
+			<div id="new-database-data" style="display:none;">
+					<table>
+					<!-- New Database Name -->
+					<tr>
+						<td> <b> Database Name </b> </td>
+						<td> <input type="text" name="db_name" required> </td>
+					</tr>
+
+					<!-- New Database URL -->
+					<tr>
+						<td> <b> Database URL </b> </td>
+						<td> <input type="text" name="db_url" required> </td>
+					</tr>
+
+					<!-- New Database Icon -->
+					<tr>
+						<td> <b> Database Icon </b> </td>
+						<td> <input type="text" name="db_icon_url" required> </td>
+					</tr>
+				</table>
+			</div>
 			
 			<!-- Button -->
 			<button id="dataset-manual-button" class="dataset-search" type="button"> Submit </button>
@@ -225,8 +263,22 @@
 				window.alert(response);
 			}
 		});
+	});
 
-	})
+	//  1.5 New Database UI
+	$('#database-selection').change(function(){
+		// Find value
+		var databasetSelectOption = $('.database-selection-option:selected').val();
+
+		// IF NewDB
+		if (databasetSelectOption === 'newdb'){
+			$('#new-database-data').show();
+		}
+		else {
+			$('#new-database-data').hide();
+		}
+
+	});
 
 
 </script>

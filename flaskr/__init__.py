@@ -55,7 +55,8 @@ def main():
 ### 2.1.1 Main
 @app.route('/data')
 def data():
-	return render_template('data.html')
+	db_dataframe = executeQuery("SELECT * FROM db", mysql)
+	return render_template('data.html', db_dataframe=db_dataframe)
 
 ### 2.1.2 Dataset Search
 @app.route('/datasetSearch', methods=['POST'])
@@ -72,9 +73,40 @@ def datasetSearch():
 ### 2.1.3 Dataset Upload
 @app.route('/datasetUpload', methods=['POST'])
 def datasetUpload():
-	# return ', '.join(dir(request.form)) add to db
-	return request.form['selected_dataset_id']
 
+	# Create dictionary
+	searchResultDict = {x:request.form[x] for x in request.form.keys()}
+
+	# Search if ID has been specified
+	# if 'selected_dataset_id' in searchResultDict.keys():
+
+	# 	# Re-get data from GEO
+	# 	datasetGeoData = fromGeoId(searchResultDict['selected_dataset_id'])
+
+	# 	# Get Insert Query
+	# 	insertQuery = dict2query(datasetGeoData, 'dataset')
+
+	# else:
+
+	# 	# If New Database
+	# 	if searchResultDict['dataset_db'] == 'newdb':
+
+	# 		# Remove DB Key
+	# 		del searchResultDict['dataset_db']
+
+	# 		# Get Query
+	# 		databaseInsertQuery = dict2query(searchResultDict, 'db', keys=['db_name', 'db_url', 'db_icon_url'])
+
+	# 		# Add and get last inserted id
+
+
+
+
+	# 	else:
+	# 		pass
+
+
+	return ', '.join([':'.join([x, searchResultDict[x]]) for x in searchResultDict.keys()])
 
 #######################################################
 ########## 3. Run Flask App ###########################
