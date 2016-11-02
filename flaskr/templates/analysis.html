@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<!-- Load JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<!-- Dataset Selection -->
+<div id="analysis-metadata-ui" style="background-color:#e2e2e2">
+	<!-- Header -->
+	<b> Analysis Metadata: </b>
+</div> <br>
+
+
+	<!-- Selection Form -->
+<div id="analysis-metadata">
+	<form id="analysis-metadata-form" action="/analysisUpload">
+		<table id="analysis-metadata-table">
+			<tr>
+				<td>
+					Canned Analysis URL (required): &nbsp
+				</td>
+				<td>
+					<input type="text" name="canned_analysis_url" required>
+				</td>
+			</tr>
+		</table>
+		<button class="analysis-form-button" type="button"> Submit </button> 
+	</form>
+
+</div>
+
+
+<script type="text/javascript">
+	
+$('button').click(function(){
+	// Get Form Data
+	formData = {'canned_analysis_url': $('input[name=canned_analysis_url]').val(),
+				'dataset_fk': 1, 
+				'tool_fk': 1}
+
+	// AJAX Request
+	$.ajax({
+		url: '/analysisUpload',
+		data: formData,
+		type: 'POST',
+		success: function(response){
+			window.alert(response)
+		}
+	});
+
+});
+
+</script>

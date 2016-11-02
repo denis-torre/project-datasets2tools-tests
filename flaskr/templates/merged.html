@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+
+<!-- Load JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<!-- ################################################################################ -->
+<!-- ################################################################################ -->
+<!-- ##### 1. Dataset Selection ##################################################### -->
+<!-- ################################################################################ -->
+<!-- ################################################################################ -->
+
+<!-- Dataset Selection -->
+<div id="dataset-selection-ui" style="background-color:#e2e2e2">
+
+	<!-- Selection Form -->
+	<form id="dataset-selection-radio">
+		<b> Dataset selection: &nbsp </b>
+		<input type="radio" name="dataset-selection-method" value="search"> Search
+		<input type="radio" name="dataset-selection-method" value="manual"> Manual
+	</form>
+
+</div>
+
+<!-- Dataset Selection -->
+<div id="dataset-selection">
+
+<!-- ########################################################################### -->
+<!-- ##### 1.1 Dataset Search ################################################## -->
+<!-- ########################################################################### -->
+	<!-- Search -->
+	<div id="dataset-search" style="display:none">
+		<!-- Title -->
+		<h3> Dataset Search: </h3>
+
+		<!-- Table -->
+		<table id="dataset-search-table" width="100%">
+
+			<!-- Search Form -->
+			<td width="20%" valign="top">
+				<form id="dataset-search-form" action="/datasetSearch">
+					<input type="text" id="dataset-search-input" name="dataset_search_input">
+					<button type="button" id="dataset-search-button" form="dataset-search-results-radio-form"> Search! </button>
+				</form>
+			</td>
+
+			<!-- Results -->
+			<td width="80%" valign="top">
+				<div id="dataset-search-results" style="height:250px;overflow-y:scroll">&nbsp</div>
+			</td>
+
+			<!-- Submit -->
+<!-- 			<td width="5%" valign="top">
+				<button id="dataset-search-results-radio-button" class="dataset-submit" type="button"> Submit </button> 
+			</td> -->
+
+		</table>
+
+	</div>
+
+<!-- ########################################################################### -->
+<!-- ##### 1.2 Dataset Manual ################################################## -->
+<!-- ########################################################################### -->
+	<!-- Manual -->
+	<div id="dataset-manual" style="display:none">
+
+		<!-- Title -->
+		<h3> Dataset Manual: </h3>
+
+		<!-- Form -->
+		<form id="dataset-manual-form" action="/datasetUpload">
+
+			<!-- Table -->
+			<table id="dataset-manual-table">
+
+				<!-- Dataset URL -->
+				<tr>
+					<td> <b> Dataset URL </b> </td>
+					<td> <input type="text" name="dataset_url" class="dataset-manual" required> </td>
+				</tr>
+
+				<!-- Dataset Accession -->
+				<tr>
+					<td> <b> Dataset Accession </b> </td>
+					<td> <input type="text" name="dataset_accession" class="dataset-manual" required> </td>
+				</tr>
+
+				<!-- Dataset Name -->
+				<tr>
+					<td> <b> Dataset Title </b> </td>
+					<td> <input type="text" name="dataset_title" class="dataset-manual" required> </td>
+				</tr>
+
+<!-- ###################################################################### -->
+<!-- ##### 1.2.1 Database Selection ####################################### -->
+<!-- ###################################################################### -->
+				<tr>
+					<td> <b> Database </b> </td>
+					<td>
+						<select id="database-selection" class="database-selection" name="db_fk">
+                         <!-- <select name="tool_id" class="selectpicker" title="Select..." data-width="50%"> -->
+                            {% for id, icon_url, name in db_dataframe[['id', 'db_icon_url', 'db_name']].as_matrix() %}
+
+	                            <option value="{{ id }}" class="database-selection-option" data-subtext="<img src='{{ icon_url }}', style='width:20px;height:20px;align:right'></img>"> {{ name }} </option>
+
+                            {% endfor %}
+                            	<option value="newdb" class="database-selection-option"> New... </option>
+                        </select>
+					</td>
+				</tr>
+			</table>
+
+			<!-- New Database Central -->
+			<div id="new-database-data" style="display:none;">
+					<table>
+					<!-- New Database Name -->
+					<tr>
+						<td> <b> Database Name </b> </td>
+						<td> <input type="text" name="db_name" required> </td>
+					</tr>
+
+					<!-- New Database URL -->
+					<tr>
+						<td> <b> Database URL </b> </td>
+						<td> <input type="text" name="db_url" required> </td>
+					</tr>
+
+					<!-- New Database Icon -->
+					<tr>
+						<td> <b> Database Icon </b> </td>
+						<td> <input type="text" name="db_icon_url" required> </td>
+					</tr>
+				</table>
+			</div>
+			
+			<!-- Button -->
+			<!-- <button id="dataset-manual-button" class="dataset-submit" type="submit"> Submit </button> -->
+
+		</form>
+
+	</div>
+</div>
+<br><br><br>
+
+<!-- ################################################################################ -->
+<!-- ################################################################################ -->
+<!-- ##### 2. Tool Selection ######################################################## -->
+<!-- ################################################################################ -->
+<!-- ################################################################################ -->
+<!-- Tool Selection -->
+<div id="tool-selection-ui" style="background-color:#e2e2e2">
+
+	<!-- Selection Form -->
+	<form id="tool-selection-radio">
+		<b> Tool selection: &nbsp </b>
+		<input id="tool-selection-search" type="radio" name="tool-selection-method" value="search"> Search
+		<input id="tool-selection-manual" type="radio" name="tool-selection-method" value="manual"> Manual
+	</form>
+
+</div>
+
+<!-- ########################################################################### -->
+<!-- ##### 2.1 Tool Search ##################################################### -->
+<!-- ########################################################################### -->
+<!-- Tool Selection -->
+<div id="tool-selection">
+
+	<!-- Search -->
+	<div id="tool-search" style="display:none">
+
+		<!-- Title -->
+		<h3> Tool Search: </h3>
+
+		<!-- Search Form -->
+		<form id="tool-search-form" action="/toolSearch">
+			<select id="tool-selection-select" class="tool-selection-select" name="tool_id">
+		        {% for id, tool_icon_url, tool_name in tool_dataframe[['id', 'tool_icon_url', 'tool_name']].as_matrix() %}
+
+		            <option value="{{ id }}" class="tool-selection-option" data-subtext="<img src='{{ icon_url }}', style='width:20px;height:20px;align:right'></img>"> {{ tool_name }} </option>
+
+		        {% endfor %}
+        	<option value="newtool" class="tool-selection-option"> New... </option>
+		    </select>
+		    <!-- <button id="tool-search-results-select-button" class="tool-submit" type="button"> Submit </button>  -->
+		</form>
+
+	</div>
+
+<!-- ########################################################################### -->
+<!-- ##### 2.2 Tool Manual ##################################################### -->
+<!-- ########################################################################### -->
+	<!-- Manual -->
+	<div id="tool-manual" style="display:none">
+
+		<!-- Title -->
+		<h3> Tool Manual: </h3>
+
+		<!-- Form -->
+		<form id="tool-manual-form" action="/toUpload">
+
+			<!-- Table -->
+			<table id="tool-manual-table">
+
+				<!-- Tool URL -->
+				<tr>
+					<td> <b> Tool URL </b> </td>
+					<td> <input type="text" name="tool_url" class="tool-manual" required> </td>
+				</tr>
+
+				<!-- Tool Icon URL -->
+				<tr>
+					<td> <b> Tool Icon URL </b> </td>
+					<td> <input type="text" name="tool_icon_url" class="tool-manual" required> </td>
+				</tr>
+
+				<!-- Tool Accession -->
+				<tr>
+					<td> <b> Tool Name </b> </td>
+					<td> <input type="text" name="tool_name" class="tool-manual" required> </td>
+				</tr>
+
+				<!-- Tool Name -->
+				<tr>
+					<td> <b> Tool Description </b> </td>
+					<td> <input type="text" name="tool_description" class="tool-manual" required> </td>
+				</tr>
+			</table>
+			
+			<!-- Button -->
+			<!-- <button id="tool-manual-button" class="tool-submit" type="button"> Submit </button> -->
+		</form>
+
+	</div>
+</div>
+<br><br><br>
+
+<!-- ################################################################################ -->
+<!-- ################################################################################ -->
+<!-- ##### 3. Analysis ############################################################## -->
+<!-- ################################################################################ -->
+<!-- ################################################################################ -->
+
+
+<!-- Dataset Selection -->
+<div id="analysis-metadata-ui" style="background-color:#e2e2e2">
+	<!-- Header -->
+	<b> Analysis Metadata: </b>
+</div> <br>
+
+
+	<!-- Selection Form -->
+<div id="analysis-metadata">
+	<form id="analysis-metadata-form" action="/analysisUpload">
+		<table id="analysis-metadata-table">
+			<tr>
+				<td>
+					Canned Analysis URL (required): &nbsp
+				</td>
+				<td>
+					<input type="text" name="canned_analysis_url" required>
+				</td>
+			</tr>
+		</table>
+		<br>
+		<button id="grandsubmitter" class="analysis-form-button" type="button"> Submit </button> 
+	</form>
+</div>
+
+
+<script>
+
+// ################################################################################ //
+// ################################################################################ //
+// ##### 1. Dataset Selection ##################################################### //
+// ################################################################################ //
+// ################################################################################ //
+
+// ################################################################################ //
+// ##### 1.1 Handlers ############################################################# //
+// ################################################################################ //
+
+	// 1.1.1 Dataset Selection Radio Change
+	$('#dataset-selection-radio').change(toggleDatasetSelectionTab);
+
+	// 1.1.2 GEO Dataset Search Button Click
+	$('#dataset-search-button').click(renderGeoSearchResultTable)
+
+	// 1.1.3 Dataset Submission Click
+	$('.dataset-submit').click(getDatasetId);
+
+	// 1.1.4 New Database UI
+	$('#database-selection').change(toggleNewDatabase);
+
+// ################################################################################ //
+// ##### 1.2 Functions ############################################################ //
+// ################################################################################ //
+
+	// 1.2.1 toggleDatasetSelectionTab
+	function toggleDatasetSelectionTab(event){
+
+		// Get value
+		var selectionMethod = $(event.target).val();
+
+		// Toggle
+		if (selectionMethod === 'search'){
+			$('#dataset-search').show()
+			$('#dataset-manual').hide()
+		}
+		else
+		{
+			$('#dataset-search').hide()
+			$('#dataset-manual').show()
+		}
+	};
+
+	// 1.2.2 GEO Search and Render Table
+	function renderGeoSearchResultTable(){
+		$.ajax({
+			url: '/datasetSearch',
+			data: $('#dataset-search-form').serialize(),
+			type: 'POST',
+			success: function(response){
+				// Get HTML String
+				var radioHtmlString = makeDatasetSelectionRadioTable(response);
+
+				// Insert Into Page
+				document.getElementById('dataset-search-results').innerHTML = radioHtmlString;
+			}
+		})
+	};
+
+
+	/// 1.2.3 Dataset Selection Table
+	function makeDatasetSelectionRadioTable(geoSearchJson, colnames=[]){
+
+		// Try
+		try {
+			// Convert JSON to JS Object
+			var geoSearchObject = JSON.parse(geoSearchJson);
+
+			// Initialize Search Result HTML List
+			var resultHtmlList = [];
+
+			// Loop Through Search Result Object
+			for (var i = 0; i < Object.keys(geoSearchObject).length; i++){ //
+
+				// Get Key Name
+				keyName = Object.keys(geoSearchObject)[i];
+
+				// Get Record
+				recordData = geoSearchObject[keyName];
+
+				// Get Brief Summary
+				var summary = recordData['summary'];
+				if (summary.length > 150){
+					summary = summary.substring(0, 150) + '...'
+				};
+
+				// Create String
+				var recordString =  keyName +
+							   		'"><div class="dataset-search-result" style="width:90%;vertical-align:middle;display:inline-block;padding-left:0.3cm"><b>'+
+							   		recordData['title'] + '</b><br>' +
+							   		summary +
+							   		'<br> Accession: <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc="' + recordData['Accession'] + '">'
+							   		+ recordData['Accession'] + '</a>&nbsp&nbsp&nbsp' +
+							   		recordData['n_samples'] +
+							   		' samples <br> Organism: ' + 
+							   		recordData['taxon'] + 
+							   		'<br>' +
+							   		recordData['gdsType'] +
+							   		'</div><br><br>';
+
+				// Append to Array
+				resultHtmlList.push(recordString);
+			};
+
+			// Define Separator String
+			var separatorString = '<input type="radio" name="selected_dataset_id" value="';
+
+			// Join HTML List
+			var resultHtmlString = '<form id="dataset-search-results-radio-form">' + separatorString + resultHtmlList.join(separatorString) + '</form>';
+
+			// Return Result
+			return resultHtmlString;
+
+		} catch(err) {
+
+			// Return No Results
+			return 'No search results.'
+		}
+	};
+
+
+	// 1.2.4 Send Checked Dataset Data to DB to get ID
+	function getDatasetId() {
+
+		// Check Dataset Selection Method Used
+		var datasetSelectionMethod = $('input:radio[name=dataset-selection-method]:checked').val();
+
+		// If Search
+		if (datasetSelectionMethod === 'search') {
+
+			// Get Form Data
+			var formData = {'selected_dataset_id': $('input:radio[name=selected_dataset_id]:checked').val()};
+
+		} else {
+
+			// Get Form Data
+			var formData = $('#dataset-manual-form').serialize();
+
+		};
+
+		// AJAX Request
+		$.ajax({
+			url: '/datasetUpload',
+			data: formData,
+			type: 'POST',
+			success: function(response){
+				window.alert(response);
+			}
+		})
+	};
+
+	// 1.2.5 Toggle New Database Tab
+	function toggleNewDatabase() {
+		// Find value
+		var databasetSelectOption = $('.database-selection-option:selected').val();
+
+		// IF NewDB
+		if (databasetSelectOption === 'newdb'){
+			$('#new-database-data').show();
+		}
+		else {
+			$('#new-database-data').hide();
+		}
+
+	};
+
+// ################################################################################ //
+// ################################################################################ //
+// ##### 2. Tool Selection ######################################################## //
+// ################################################################################ //
+// ################################################################################ //
+
+// ################################################################################ //
+// ##### 2.1 Handlers ############################################################# //
+// ################################################################################ //
+	// 2.1.1 Toggle Tool Selection Tab
+	$('#tool-selection-radio').change(toggleToolSelectionTab);
+
+	// 1.2 Toggle New Page
+	$('#tool-selection-select').change(toggleNewToolUi);
+
+	// 1.3 Submit Tool
+	$('.tool-submit').click(submitTool)
+
+// ################################################################################ //
+// ##### 2.2 Functions ############################################################ //
+// ################################################################################ //
+
+
+	// 2.2.1 toggleToolSelectionTab
+	function toggleToolSelectionTab(event){
+
+		// Get value
+		var selectionMethod = $(event.target).val();
+
+		// Toggle
+		if (selectionMethod === 'search'){
+			$('#tool-search').show()
+			$('#tool-manual').hide()
+		}
+		else
+		{
+			$('#tool-search').hide()
+			$('#tool-manual').show()
+		}
+	};
+
+
+	// 2.2.1 toggleNewToolUi
+	function toggleNewToolUi(event) {
+
+		// Get value
+		var selectionMethod = $(event.target).val();
+
+		// Toggle
+		if (selectionMethod === 'newtool'){
+			$('#tool-search').hide()
+			$('#tool-manual').show()
+			document.getElementById('tool-selection-manual').checked = true;
+			$('#tool-selection-select').val(1);
+		}
+		else
+		{
+			$('#tool-search').show()
+			$('#tool-manual').hide()
+		}
+	};
+
+
+	// 2.2.2 submitTool
+	function submitTool() {
+		// Get Tool Method
+		var toolSelectionMethod = $('input:radio[name=tool-selection-method]:checked').val();
+
+		// If Search
+		if (toolSelectionMethod === 'search') {
+
+			// Get Tool Id
+			var formData = $('#tool-search-form').serialize();//{'id': $('select[name=id]:checked').val()};
+
+		} else {
+
+			// Get Form Data
+			var formData = $('#tool-manual-form').serialize();
+
+		};
+
+		// AJAX Request
+		$.ajax({
+			url: '/toolUpload',
+			data: formData,
+			type: 'POST',
+			success: function(response){
+				window.alert(response)
+			}
+		});
+
+	};
+
+// ################################################################################ //
+// ################################################################################ //
+// ##### 3. Analysis ############################################################## //
+// ################################################################################ //
+// ################################################################################ //
+
+// ################################################################################ //
+// ##### 3.1 Handlers ############################################################# //
+// ################################################################################ //
+
+	// 3.1.1 Grand Submission
+	$('#grandsubmitter').click(grandSubmission)
+
+// ################################################################################ //
+// ##### 3.2 Functions ############################################################ //
+// ################################################################################ //
+
+	// 3.2.1 grandSubmission
+	function grandSubmission() {
+		// AJAX Request
+		$.ajax({
+			url: '/grandSubmission',
+			data: $('form').serialize(),
+			type: 'POST',
+			success: function(response){
+				window.alert(response)
+			}
+		});
+	};
+
+</script>
