@@ -52,7 +52,7 @@ mysql.init_app(app)
 def main():
 	return 'It works!'
 
-### 2.1.1 Main
+### 2.1.2 Data
 @app.route('/data')
 def data():
 	db_dataframe = executeQuery("SELECT * FROM db", mysql)
@@ -107,9 +107,38 @@ def datasetUpload():
 		datasetInsertQuery = dict2query(searchResultDict, 'dataset', keys=['dataset_title', 'dataset_accession', 'dataset_url', 'db_fk'])
 
 	# Add data
-	newRecordId = insertMysqlData(datasetInsertQuery, mysql, getId=True)
+	datasetRecordId = insertMysqlData(datasetInsertQuery, mysql, getId=True)
 
-	return str(newRecordId)
+	return str(datasetRecordId)
+
+### 2.1.3 Tools
+@app.route('/tools')
+def tools():
+	tool_dataframe = executeQuery("SELECT * FROM tool", mysql)
+	return render_template('tools.html', tool_dataframe=tool_dataframe)
+
+### 2.1.3 Tool Upload
+@app.route('/toolUpload', methods=['POST'])
+def toolUpload():
+
+	# Create dictionary
+	searchResultDict = {x:request.form[x] for x in request.form.keys()}
+
+	# Search if Tool has been selected
+	if 'id' in searchResultDict.keys():
+
+		# Get ID
+		toolRecordId = searchResultDict['id']
+
+	else:
+
+		# Get query
+		datasetInsertQuery = dict2query(searchResultDict, 'tool')
+
+		# Get ID
+		toolRecordId = insertMysqlData(datasetInsertQuery, mysql, getId=True)
+
+	return str(toolRecordId)
 
 #######################################################
 ########## 3. Run Flask App ###########################
