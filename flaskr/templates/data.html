@@ -43,7 +43,7 @@
 
 			<!-- Submit -->
 			<td width="5%" valign="top">
-				<button id="dataset-search-results-radio-button" class="dataset-search" type="button"> Submit </button> 
+				<button id="dataset-search-results-radio-button" class="dataset-submit" type="button"> Submit </button> 
 			</td>
 
 		</table>
@@ -121,122 +121,7 @@
 			</div>
 			
 			<!-- Button -->
-			<button id="dataset-manual-button" class="dataset-search" type="submit"> Submit </button>
-
-		</form>
-
-	</div>
-</div>
-
-<br>
-<br>
-<br>
-
-<!-- Tool Selection -->
-<div id="dataset-selection">
-
-	<!-- Search -->
-	<div id="dataset-search" style="display:none">
-		<!-- Title -->
-		<h3> Dataset Search: </h3>
-
-		<!-- Table -->
-		<table id="dataset-search-table" width="100%">
-
-			<!-- Search Form -->
-			<td width="20%" valign="top">
-				<form id="dataset-search-form" action="/datasetSearch">
-					<input type="text" id="dataset-search-input" name="dataset_search_input">
-					<button type="button" id="dataset-search-button" form="dataset-search-results-radio-form"> Search! </button>
-				</form>
-			</td>
-
-			<!-- Results -->
-			<td width="80%" valign="top">
-				<div id="dataset-search-results" style="height:250px;overflow-y:scroll">&nbsp</div>
-			</td>
-
-			<!-- Submit -->
-			<td width="5%" valign="top">
-				<button id="dataset-search-results-radio-button" class="dataset-search" type="button"> Submit </button> 
-			</td>
-
-		</table>
-
-	</div>
-
-	<!-- Manual -->
-	<div id="dataset-manual" style="display:none">
-
-		<!-- Title -->
-		<h3> Dataset Manual: </h3>
-
-		<!-- Form -->
-		<form id="dataset-manual-form" action="/datasetUpload">
-
-			<!-- Table -->
-			<table id="dataset-manual-table" action="/datasetSearch">
-
-				<!-- Dataset URL -->
-				<tr>
-					<td> <b> Dataset URL </b> </td>
-					<td> <input type="text" name="dataset_url" class="dataset-manual" required> </td>
-				</tr>
-
-				<!-- Dataset Accession -->
-				<tr>
-					<td> <b> Dataset Accession </b> </td>
-					<td> <input type="text" name="dataset_accession" class="dataset-manual" required> </td>
-				</tr>
-
-				<!-- Dataset Name -->
-				<tr>
-					<td> <b> Dataset Title </b> </td>
-					<td> <input type="text" name="dataset_title" class="dataset-manual" required> </td>
-				</tr>
-
-				<!-- Database -->
-				<tr>
-					<td> <b> Database </b> </td>
-					<td>
-						<select id="database-selection" class="database-selection" name="db_fk">
-                         <!-- <select name="tool_id" class="selectpicker" title="Select..." data-width="50%"> -->
-                            {% for id, icon_url, name in db_dataframe[['id', 'db_icon_url', 'db_name']].as_matrix() %}
-
-	                            <option value="{{ id }}" class="database-selection-option" data-subtext="<img src='{{ icon_url }}', style='width:20px;height:20px;align:right'></img>"> {{ name }} </option>
-
-                            {% endfor %}
-                            	<option value="newdb" class="database-selection-option"> New... </option>
-                        </select>
-					</td>
-				</tr>
-			</table>
-
-				<!-- New Database Central -->
-			<div id="new-database-data" style="display:none;">
-					<table>
-					<!-- New Database Name -->
-					<tr>
-						<td> <b> Database Name </b> </td>
-						<td> <input type="text" name="db_name" required> </td>
-					</tr>
-
-					<!-- New Database URL -->
-					<tr>
-						<td> <b> Database URL </b> </td>
-						<td> <input type="text" name="db_url" required> </td>
-					</tr>
-
-					<!-- New Database Icon -->
-					<tr>
-						<td> <b> Database Icon </b> </td>
-						<td> <input type="text" name="db_icon_url" required> </td>
-					</tr>
-				</table>
-			</div>
-			
-			<!-- Button -->
-			<button id="dataset-manual-button" class="dataset-search" type="submit"> Submit </button>
+			<button id="dataset-manual-button" class="dataset-submit" type="submit"> Submit </button>
 
 		</form>
 
@@ -345,7 +230,7 @@
 	};
 
 	// 1.4 Dataset Submission
-	$('.dataset-search').click(function(){
+	$('.dataset-submit').click(function(){
 
 		// Check Dataset Selection Method Used
 		var datasetSelectionMethod = $('input:radio[name=dataset-selection-method]:checked').val();
