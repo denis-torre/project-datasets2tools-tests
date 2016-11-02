@@ -78,35 +78,38 @@ def datasetUpload():
 	searchResultDict = {x:request.form[x] for x in request.form.keys()}
 
 	# Search if ID has been specified
-	# if 'selected_dataset_id' in searchResultDict.keys():
+	if 'selected_dataset_id' in searchResultDict.keys():
 
-	# 	# Re-get data from GEO
-	# 	datasetGeoData = fromGeoId(searchResultDict['selected_dataset_id'])
+		# Re-get data from GEO
+		datasetGeoData = fromGeoId(searchResultDict['selected_dataset_id'])
 
-	# 	# Get Insert Query
-	# 	insertQuery = dict2query(datasetGeoData, 'dataset')
+		# Get Insert Query
+		datasetInsertQuery = dict2query(datasetGeoData, 'dataset')
 
-	# else:
+	else:
 
-	# 	# If New Database
-	# 	if searchResultDict['dataset_db'] == 'newdb':
+		# If New Database
+		if searchResultDict['db_fk'] == 'newdb':
 
-	# 		# Remove DB Key
-	# 		del searchResultDict['dataset_db']
+			# Remove DB Key
+			del searchResultDict['db_fk']
 
-	# 		# Get Query
-	# 		databaseInsertQuery = dict2query(searchResultDict, 'db', keys=['db_name', 'db_url', 'db_icon_url'])
+			# Get Query String
+			databaseInsertQuery = dict2query(searchResultDict, 'db', keys=['db_name', 'db_url', 'db_icon_url'])
 
-	# 		# Add and get last inserted id
+			# Add and get last inserted id
+			newDbId = insertMysqlData(databaseInsertQuery, mysql, getId=True)
 
+			# Add Database ID To Dictionary
+			searchResultDict['db_fk'] = newDbId
+		
+		# Get Query
+		datasetInsertQuery = dict2query(searchResultDict, 'dataset', keys=['dataset_title', 'dataset_accession', 'dataset_url', 'db_fk'])
 
+	# Add data
+	newRecordId = insertMysqlData(datasetInsertQuery, mysql, getId=True)
 
-
-	# 	else:
-	# 		pass
-
-
-	return ', '.join([':'.join([x, searchResultDict[x]]) for x in searchResultDict.keys()])
+	return str(newRecordId)
 
 #######################################################
 ########## 3. Run Flask App ###########################

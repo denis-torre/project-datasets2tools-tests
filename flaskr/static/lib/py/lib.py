@@ -66,8 +66,6 @@ def fromGeoId(geoId, keys={'Accession': 'dataset_accession', 'FTPLink': 'dataset
 
     # Get eSummary URL
     geo_esummary_url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gds&id=%(geoId)s' % locals()
-    
-    print(geo_esummary_url)
 
      # Get eSummary results XML
     esummary_xml = xml.etree.ElementTree.fromstring(requests.get(geo_esummary_url).content)
@@ -79,7 +77,7 @@ def fromGeoId(geoId, keys={'Accession': 'dataset_accession', 'FTPLink': 'dataset
     esummary_dict_subset = {keys[x]:esummary_dict[x] for x in keys.keys()}
     
     # Add Database
-    esummary_dict_subset['db'] = 'GEO'
+    esummary_dict_subset['db_fk'] = 1
 
     # Return result
     return esummary_dict_subset
@@ -92,15 +90,17 @@ def fromGeoId(geoId, keys={'Accession': 'dataset_accession', 'FTPLink': 'dataset
 
 def dict2query(dataDict, table, keys=None):
 
-    # Get Key Subset
-    if keys:
-        dataDict = {x:dataDict[x] for x in keys}
+    # Get Keys
+    keys = keys if keys else dataDict.keys()
+
+    # Fix data values
+    dataDict = {x:dataDict[x].encode('ascii', 'replace') if type(dataDict[x]) == unicode else dataDict[x] for x in keys}
 
     # Get Column String
     columnString = ', '.join(["`%(x)s`" %locals() for x in dataDict.keys()])
 
-    # Get Value String, surrounding with ' if necessary
-    insertValues = ["'%(x)s'" % locals() if type(x) == str else x for x in dataDict.values()]
+    # Get Value String, surrounding with '
+    insertValues = ["'%(x)s'" % locals() for x in dataDict.values()]
 
     # Make Value String
     valueString = ', '.join(insertValues)
@@ -108,48 +108,71 @@ def dict2query(dataDict, table, keys=None):
     # Make Query String
     queryString = ''' INSERT INTO %(table)s (%(columnString)s) VALUES (%(valueString)s); ''' % locals()
 
-    return queryString
+    # Check if exists
+    requirementString = ' AND '.join(["`" + x + "`='" + str(dataDict[x]) + "'" for x in dataDict.keys()])
+
+    # Make IFexists String
+    ifExistsString = '''SELECT id FROM %(table)s WHERE %(requirementString)s;''' % locals()
+
+    return {'query': queryString, 'ifexists': ifExistsString}
 
 ##############################
 ##### 2.4 insertMysqlData
 ##############################
 ### Insert data
-def insertMysqlData(query, mysql_engine, getId=False):
+def insertMysqlData(queryDict, mysql_engine, getId=False):
     
     # Create connection
     connection = mysql_engine.connect()
     
     # Create cursor
     cursor = connection.cursor()
-    
-    # Try inserting data, if error rollback
-    try:
-        # Execute query
-        cursor.execute(query)
-            
-        # Commit connection
-        connection.commit()     
-        
+
+    # Check if exists
+    cursor.execute(queryDict['ifexists'])
+
+    # Get results
+    existingRecordIds = cursor.fetchall()
+
+    # Look For Matching Records in Table
+    if len(existingRecordIds) > 0:
+
         # Get ID
-        if getId:
+        recordId = existingRecordIds[0][0]
+
+    else:
+        # Try inserting data, if error rollback
+        try:
+            # Execute query
+            cursor.execute(queryDict['query'])
+                
+            # Commit connection
+            connection.commit()     
+            
             # Get ID
-            cursor.execute('SELECT LAST_INSERT_ID()')
-            
-            # Extract ID
-            insertId = cursor.fetchall()[0][0]
-  
-            # Close connection
-            connection.close()
-            
-            # Return ID
-            return insertId
-            
-    except:
-        # Rollback connection
-        connection.rollback()
-        
-        # Close connection
-        connection.close()
+            if getId:
+                # Get ID
+                cursor.execute('SELECT LAST_INSERT_ID()')
+                
+                # Extract ID
+                recordId = cursor.fetchall()[0][0]
+        # Handle exception
+        except:
+            # Set NULL
+            recordId = None
+
+            # Rollback connection
+            connection.rollback()
+
+    # Close connection
+    connection.close()
+
+    # Return ID
+    if getId == True:
+        # Return
+        return recordId
+
+
 
 ##############################
 ##### 2.5 executeMysqlQuery
