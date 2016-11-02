@@ -14,8 +14,9 @@
 # Python Libraries
 import re, requests, xml.etree.ElementTree, urlparse, urllib, numpy
 import pandas as pd
+
 #######################################################
-########## 2. Add Functions ###########################
+########## 2. Add Level 1 #############################
 #######################################################
 
 ##############################
@@ -159,7 +160,7 @@ def insertMysqlData(queryDict, mysql_engine, getId=False):
         # Handle exception
         except:
             # Set NULL
-            recordId = None
+            recordId = 'None!'
 
             # Rollback connection
             connection.rollback()
@@ -202,4 +203,102 @@ def executeQuery(query, mysql_engine):
     # Return result
     return query_result_dataframe
 
+#######################################################
+########## 2. Add Level 2 #############################
+#######################################################
+
+##############################
+##### 2.1 getDatasetId
+##############################
+
+def getDatasetId(searchResultDict, mysql):
+
+    # Search if ID has been specified
+    if 'selected_dataset_id' in searchResultDict.keys():
+
+        # Re-get data from GEO
+        datasetGeoData = fromGeoId(searchResultDict['selected_dataset_id'])
+
+        # Get Insert Query
+        datasetInsertQuery = dict2query(datasetGeoData, 'dataset')
+
+    else:
+
+        # If New Database
+        if searchResultDict['db_fk'] == 'newdb':
+
+            # Remove DB Key
+            del searchResultDict['db_fk']
+
+            # Get Query String
+            databaseInsertQuery = dict2query(searchResultDict, 'db', keys=['db_name', 'db_url', 'db_icon_url'])
+
+            # Add and get last inserted id
+            newDbId = insertMysqlData(databaseInsertQuery, mysql, getId=True)
+
+            # Add Database ID To Dictionary
+            searchResultDict['db_fk'] = newDbId
+        
+        # Get Query
+        datasetInsertQuery = dict2query(searchResultDict, 'dataset', keys=['dataset_title', 'dataset_accession', 'dataset_url', 'db_fk'])
+
+    # Add data
+    datasetRecordId = insertMysqlData(datasetInsertQuery, mysql, getId=True)
+
+    return str(datasetRecordId)
+
+
+##############################
+##### 2.2 getToolId
+##############################
+
+def getToolId(searchResultDict, mysql):
+
+    # Search if Tool has been selected
+    if 'tool_id' in searchResultDict.keys():
+
+        # Get ID
+        toolRecordId = searchResultDict['tool_id']
+
+    else:
+
+        # Get query
+        toolInsertQuery = dict2query(searchResultDict, 'tool')
+
+        # Get ID
+        toolRecordId = insertMysqlData(toolInsertQuery, mysql, getId=True)
+
+    return str(toolRecordId)
+
+##############################
+##### 2.3 uploadAnalysis
+##############################
+
+def getAnalysisId(searchResultDict, datasetRecordId, toolRecordId, mysql):
+
+    # Get Canned Analysis Insert Dict
+    cannedAnalysisDict = {'dataset_fk': datasetRecordId,
+                           'tool_fk' : toolRecordId,
+                           'canned_analysis_url': searchResultDict['canned_analysis_url']}
+
+    # Get Query String
+    analysisInsertQuery = dict2query(cannedAnalysisDict, 'canned_analysis')
+
+    # Get ID
+    analysisRecordId = insertMysqlData(analysisInsertQuery, mysql, getId=True)
+
+    # Return result
+    return str(analysisRecordId)
+
+##############################
+##### 2.1 getDatasetId
+##############################
+
+##############################
+##### 2.1 getDatasetId
+##############################
+
+##############################
+##### 2.1 getDatasetId
+##############################
 

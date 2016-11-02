@@ -133,12 +133,57 @@ def toolUpload():
 	else:
 
 		# Get query
-		datasetInsertQuery = dict2query(searchResultDict, 'tool')
+		toolInsertQuery = dict2query(searchResultDict, 'tool')
 
 		# Get ID
-		toolRecordId = insertMysqlData(datasetInsertQuery, mysql, getId=True)
+		toolRecordId = insertMysqlData(toolInsertQuery, mysql, getId=True)
 
 	return str(toolRecordId)
+
+
+### 2.1.3 Tools
+@app.route('/analysis')
+def analysis():
+	return render_template('analysis.html')
+
+### 2.1.3 Tools
+@app.route('/analysisUpload', methods=['POST'])
+def analysisUpload():
+	# Create dictionary
+	searchResultDict = {x:request.form[x] for x in request.form.keys()}
+
+	# Insert
+	analysisInsertQuery = dict2query(searchResultDict, 'canned_analysis')
+
+	# Get ID
+	analysisRecordId = insertMysqlData(analysisInsertQuery, mysql, getId=True)
+
+	return str(analysisRecordId)
+
+### 2.1.3 Tools
+@app.route('/merged')
+def merged():
+	db_dataframe = executeQuery("SELECT * FROM db", mysql)
+	tool_dataframe = executeQuery("SELECT * FROM tool", mysql)
+	return render_template('merged.html', db_dataframe=db_dataframe, tool_dataframe=tool_dataframe)
+
+### 2.1.3 grandSubmission
+@app.route('/grandSubmission', methods=['POST'])
+def grandSubmission():
+
+	# Create dictionary
+	searchResultDict = {x:request.form[x] for x in request.form.keys()}
+
+	# Get Dataset ID
+	datasetRecordId = getDatasetId(searchResultDict, mysql)
+
+	# Get Tool ID
+	toolRecordId = getToolId(searchResultDict, mysql)
+
+	# Get Analysis ID
+	analysisRecordId = getAnalysisId(searchResultDict, datasetRecordId, toolRecordId, mysql)
+
+	return(str(analysisRecordId))
 
 #######################################################
 ########## 3. Run Flask App ###########################
