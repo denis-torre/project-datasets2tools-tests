@@ -214,7 +214,7 @@ def executeQuery(query, mysql_engine):
 def getDatasetId(searchResultDict, mysql):
 
     # Search if ID has been specified
-    if 'selected_dataset_id' in searchResultDict.keys():
+    if searchResultDict['dataset-selection-method'] == 'search':
 
         # Re-get data from GEO
         datasetGeoData = fromGeoId(searchResultDict['selected_dataset_id'])
@@ -255,20 +255,19 @@ def getDatasetId(searchResultDict, mysql):
 def getToolId(searchResultDict, mysql):
 
     # Search if Tool has been selected
-    if 'tool_id' in searchResultDict.keys():
+    if searchResultDict['tool-selection-method'] == 'search':
 
         # Get ID
         toolRecordId = searchResultDict['tool_id']
 
     else:
-
         # Get query
-        toolInsertQuery = dict2query(searchResultDict, 'tool')
+        toolInsertQuery = dict2query(searchResultDict, 'tool', keys=['tool_name', 'tool_icon_url', 'tool_url', 'tool_description'])
 
         # Get ID
         toolRecordId = insertMysqlData(toolInsertQuery, mysql, getId=True)
 
-    return str(toolRecordId)
+    return toolRecordId
 
 ##############################
 ##### 2.3 uploadAnalysis

@@ -3,6 +3,19 @@
 <!-- Load JQuery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
+<!-- Load Bootstrap-Select -->
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/css/bootstrap-select.css" rel="stylesheet" type="text/css"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js"></script>
+
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
+
+<div style="padding:0.3cm">
+<h2> Canned Analysis Form </h2>
+<br>
 <!-- ################################################################################ -->
 <!-- ################################################################################ -->
 <!-- ##### 1. Dataset Selection ##################################################### -->
@@ -16,14 +29,13 @@
 	<form id="dataset-selection-radio">
 		<b> Dataset selection: &nbsp </b>
 		<input type="radio" name="dataset-selection-method" value="search"> Search
-		<input type="radio" name="dataset-selection-method" value="manual"> Manual
+		<input type="radio" name="dataset-selection-method" value="manual"> Manual &nbsp
 	</form>
 
 </div>
 
 <!-- Dataset Selection -->
 <div id="dataset-selection">
-
 <!-- ########################################################################### -->
 <!-- ##### 1.1 Dataset Search ################################################## -->
 <!-- ########################################################################### -->
@@ -37,9 +49,9 @@
 
 			<!-- Search Form -->
 			<td width="20%" valign="top">
-				<form id="dataset-search-form" action="/datasetSearch">
+				<form id="dataset-search-form">
 					<input type="text" id="dataset-search-input" name="dataset_search_input">
-					<button type="button" id="dataset-search-button" form="dataset-search-results-radio-form"> Search! </button>
+					<button type="button" id="dataset-search-button"> Search! </button>
 				</form>
 			</td>
 
@@ -67,7 +79,7 @@
 		<h3> Dataset Manual: </h3>
 
 		<!-- Form -->
-		<form id="dataset-manual-form" action="/datasetUpload">
+		<form id="dataset-manual-form">
 
 			<!-- Table -->
 			<table id="dataset-manual-table">
@@ -96,13 +108,14 @@
 				<tr>
 					<td> <b> Database </b> </td>
 					<td>
-						<select id="database-selection" class="database-selection" name="db_fk">
-                         <!-- <select name="tool_id" class="selectpicker" title="Select..." data-width="50%"> -->
-                            {% for id, icon_url, name in db_dataframe[['id', 'db_icon_url', 'db_name']].as_matrix() %}
+						<!-- <select id="database-selection" class="database-selection" name="db_fk"> -->
+                         <select id="database-selection" class="selectpicker" name="db_fk" data-width="100%">
+                            {% for id, db_icon_url, name in db_dataframe[['id', 'db_icon_url', 'db_name']].as_matrix() %}
 
-	                            <option value="{{ id }}" class="database-selection-option" data-subtext="<img src='{{ icon_url }}', style='width:20px;height:20px;align:right'></img>"> {{ name }} </option>
+	                            <option value="{{ id }}" class="database-selection-option" data-subtext="<img src='{{ db_icon_url }}', style='height:20px;align:right'></img>"> {{ name }} </option>
 
                             {% endfor %}
+
                             	<option value="newdb" class="database-selection-option"> New... </option>
                         </select>
 					</td>
@@ -171,13 +184,18 @@
 		<h3> Tool Search: </h3>
 
 		<!-- Search Form -->
-		<form id="tool-search-form" action="/toolSearch">
-			<select id="tool-selection-select" class="tool-selection-select" name="tool_id">
+		<form id="tool-search-form">
+			<!-- <select id="tool-selection-select" class="tool-selection-select" name="tool_id"> -->
+             <select id="tool-selection-select" class="selectpicker" name="tool_id" data-width="20%">
+
 		        {% for id, tool_icon_url, tool_name in tool_dataframe[['id', 'tool_icon_url', 'tool_name']].as_matrix() %}
 
-		            <option value="{{ id }}" class="tool-selection-option" data-subtext="<img src='{{ icon_url }}', style='width:20px;height:20px;align:right'></img>"> {{ tool_name }} </option>
+		            <option value="{{ id }}" class="tool-selection-option" data-subtext="<img src='{{ tool_icon_url }}', style='height:20px;align:right'></img>"> {{ tool_name }} </option>
+		            <!-- <option value="{{ id }}" > {{ tool_name }} </option> -->
+
 
 		        {% endfor %}
+
         	<option value="newtool" class="tool-selection-option"> New... </option>
 		    </select>
 		    <!-- <button id="tool-search-results-select-button" class="tool-submit" type="button"> Submit </button>  -->
@@ -195,7 +213,7 @@
 		<h3> Tool Manual: </h3>
 
 		<!-- Form -->
-		<form id="tool-manual-form" action="/toUpload">
+		<form id="tool-manual-form">
 
 			<!-- Table -->
 			<table id="tool-manual-table">
@@ -249,7 +267,7 @@
 
 	<!-- Selection Form -->
 <div id="analysis-metadata">
-	<form id="analysis-metadata-form" action="/analysisUpload">
+	<form id="analysis-metadata-form">
 		<table id="analysis-metadata-table">
 			<tr>
 				<td>
@@ -264,7 +282,7 @@
 		<button id="grandsubmitter" class="analysis-form-button" type="button"> Submit </button> 
 	</form>
 </div>
-
+</div>
 
 <script>
 
@@ -328,7 +346,6 @@
 		})
 	};
 
-
 	/// 1.2.3 Dataset Selection Table
 	function makeDatasetSelectionRadioTable(geoSearchJson, colnames=[]){
 
@@ -351,23 +368,23 @@
 
 				// Get Brief Summary
 				var summary = recordData['summary'];
-				if (summary.length > 150){
-					summary = summary.substring(0, 150) + '...'
+				if (summary.length > 300){
+					summary = summary.substring(0, 300) + '...'
 				};
 
 				// Create String
 				var recordString =  keyName +
 							   		'"><div class="dataset-search-result" style="width:90%;vertical-align:middle;display:inline-block;padding-left:0.3cm"><b>'+
-							   		recordData['title'] + '</b><br>' +
+							   		recordData['title'] + '</b><br><i>' +
 							   		summary +
-							   		'<br> Accession: <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc="' + recordData['Accession'] + '">'
+							   		'<br></i> Accession: <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc="' + recordData['Accession'] + '">'
 							   		+ recordData['Accession'] + '</a>&nbsp&nbsp&nbsp' +
 							   		recordData['n_samples'] +
 							   		' samples <br> Organism: ' + 
 							   		recordData['taxon'] + 
 							   		'<br>' +
 							   		recordData['gdsType'] +
-							   		'</div><br><br>';
+							   		'</div><hr>';
 
 				// Append to Array
 				resultHtmlList.push(recordString);
@@ -553,7 +570,7 @@
 			data: $('form').serialize(),
 			type: 'POST',
 			success: function(response){
-				window.alert(response)
+				window.alert('Successfully submitted! Analysis ID: ' + response);
 			}
 		});
 	};
