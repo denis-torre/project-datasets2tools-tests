@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<!-- Load JQuery -->
+<!-- <script src="{{ url_for('static', filename='static/lib/js/lib.js') }}"></script> -->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<!-- Tool Selection -->
+<div id="tool-selection-ui" style="background-color:#e2e2e2">
+
+	<!-- Selection Form -->
+	<form id="tool-selection-radio">
+		<b> Tool selection: &nbsp </b>
+		<input id="tool-selection-search" type="radio" name="tool-selection-method" value="search"> Search
+		<input id="tool-selection-manual" type="radio" name="tool-selection-method" value="manual"> Manual
+	</form>
+
+</div>
+
+<!-- Tool Selection -->
+<div id="tool-selection">
+
+	<!-- Search -->
+	<div id="tool-search" style="display:none">
+
+		<!-- Title -->
+		<h3> Tool Search: </h3>
+
+		<!-- Search Form -->
+		<form id="tool-search-form" action="/toolSearch">
+			<select id="tool-selection-select" class="tool-selection-select" name="id">
+		        {% for id, tool_icon_url, tool_name in tool_dataframe[['id', 'tool_icon_url', 'tool_name']].as_matrix() %}
+
+		            <option value="{{ id }}" class="tool-selection-option" data-subtext="<img src='{{ icon_url }}', style='width:20px;height:20px;align:right'></img>"> {{ tool_name }} </option>
+
+		        {% endfor %}
+        	<option value="newtool" class="tool-selection-option"> New... </option>
+		    </select>
+		    <button id="tool-search-results-select-button" class="tool-submit" type="button"> Submit </button> 
+		</form>
+
+	</div>
+
+	<!-- Manual -->
+	<div id="tool-manual" style="display:none">
+
+		<!-- Title -->
+		<h3> Tool Manual: </h3>
+
+		<!-- Form -->
+		<form id="tool-manual-form" action="/toUpload"> <!-- action="/toolUpload"> -->
+
+			<!-- Table -->
+			<table id="tool-manual-table">
+
+				<!-- Tool URL -->
+				<tr>
+					<td> <b> Tool URL </b> </td>
+					<td> <input type="text" name="tool_url" class="tool-manual" required> </td>
+				</tr>
+
+				<!-- Tool Icon URL -->
+				<tr>
+					<td> <b> Tool Icon URL </b> </td>
+					<td> <input type="text" name="tool_icon_url" class="tool-manual" required> </td>
+				</tr>
+
+				<!-- Tool Accession -->
+				<tr>
+					<td> <b> Tool Name </b> </td>
+					<td> <input type="text" name="tool_name" class="tool-manual" required> </td>
+				</tr>
+
+				<!-- Tool Name -->
+				<tr>
+					<td> <b> Tool Description </b> </td>
+					<td> <input type="text" name="tool_description" class="tool-manual" required> </td>
+				</tr>
+			</table>
+			
+			<!-- Button -->
+			<button id="tool-manual-button" class="tool-submit" type="button"> Submit </button>
+
+		</form>
+
+	</div>
+</div>
+
+<!-- Load JS Scripts -->
+<script type="text/javascript">
+
+	////////////////////////////////
+	///// 1. Tool selection
+	////////////////////////////////
+
+	/// 1.1 Toggle Tool Selection
+	$('#tool-selection-radio').change(function(event){
+
+		// Get value
+		var selectionMethod = $(event.target).val();
+
+		// Toggle
+		if (selectionMethod === 'search'){
+			$('#tool-search').show()
+			$('#tool-manual').hide()
+		}
+		else
+		{
+			$('#tool-search').hide()
+			$('#tool-manual').show()
+		}
+	});
+
+	// 1.2 Toggle New Page
+	$('#tool-selection-select').change(function(event){
+
+		// Get value
+		var selectionMethod = $(event.target).val();
+
+		// Toggle
+		if (selectionMethod === 'newtool'){
+			$('#tool-search').hide()
+			$('#tool-manual').show()
+			document.getElementById('tool-selection-manual').checked = true;
+			$('#tool-selection-select').val(1);
+		}
+		else
+		{
+			$('#tool-search').show()
+			$('#tool-manual').hide()
+		}
+	});
+
+	// 1.3 Submit Tool
+	$('.tool-submit').click(function(){
+		// Get Tool Method
+		var toolSelectionMethod = $('input:radio[name=tool-selection-method]:checked').val();
+
+		// If Search
+		if (toolSelectionMethod === 'search') {
+
+			// Get Tool Id
+			var formData = $('#tool-search-form').serialize();//{'id': $('select[name=id]:checked').val()};
+
+		} else {
+
+			// Get Form Data
+			var formData = $('#tool-manual-form').serialize();
+
+		};
+
+		// AJAX Request
+		$.ajax({
+			url: '/toolUpload',
+			data: formData,
+			type: 'POST',
+			success: function(response){
+				window.alert(response)
+			}
+		});
+
+	});
+
+
+</script>
