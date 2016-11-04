@@ -289,6 +289,44 @@ def getAnalysisId(searchResultDict, datasetRecordId, toolRecordId, mysql):
     # Return result
     return str(analysisRecordId)
 
+#######################################################
+########## 3. API Functions ###########################
+#######################################################
+
+##############################
+##### 3.1 getRecordId
+##############################
+
+def getRecordIds(searchParameterDict, table, mysql_engine, field='id'):
+    # Try
+    try:
+        # Make Requirement String
+        requirementString = ' AND '.join(["`" + x + "`='" + str(searchParameterDict[x]) + "'" for x in searchParameterDict.keys()])
+
+        # Make Query String
+        queryString = '''SELECT %(field)s FROM %(table)s WHERE %(requirementString)s;''' % locals()
+        
+        # Get cursor
+        cursor = mysql_engine.connect().cursor()
+        
+        # Execute query
+        cursor.execute(queryString)
+        
+        # Get ID
+        recordIds = [str(x[0]) for x in cursor.fetchall()]
+
+        # Make string
+        recordIdString = ','.join(recordIds) if len(recordIds) > 0 else 'No search results.'
+        
+        return recordIdString
+
+    # Except
+    except:
+        return 'Something went wrong - please check URL.'
+
+
+
+
 ##############################
 ##### 2.1 getDatasetId
 ##############################

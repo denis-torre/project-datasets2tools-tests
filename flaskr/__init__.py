@@ -44,11 +44,26 @@ mysql.init_app(app)
 #######################################################
 
 ##############################
-##### 2.1 Connection Setup
+##### 2.1 Templates
 ##############################
 
+### 2.1.1 Merged
+@app.route('/')
+def main():
+	return 'It works!'
 
-### 2.1.1 Dataset Search
+### 2.1.1 Merged
+@app.route('/merged')
+def merged():
+	db_dataframe = executeQuery("SELECT * FROM db", mysql)
+	tool_dataframe = executeQuery("SELECT * FROM tool", mysql)
+	return render_template('merged.html', db_dataframe=db_dataframe, tool_dataframe=tool_dataframe)
+
+##############################
+##### 2.2 POST Requests
+##############################
+
+### 2.2.1 Dataset Search
 @app.route('/datasetSearch', methods=['POST'])
 def datasetSearch():
 	# Get Form Text
@@ -60,14 +75,8 @@ def datasetSearch():
 	# Run GEO Search
 	return json.dumps(geoSearchResults)
 
-### 2.1.2 Tools
-@app.route('/merged')
-def merged():
-	db_dataframe = executeQuery("SELECT * FROM db", mysql)
-	tool_dataframe = executeQuery("SELECT * FROM tool", mysql)
-	return render_template('merged.html', db_dataframe=db_dataframe, tool_dataframe=tool_dataframe)
 
-### 2.1.3 grandSubmission
+### 2.2.2 grandSubmission
 @app.route('/grandSubmission', methods=['POST'])
 def grandSubmission():
 
@@ -84,6 +93,32 @@ def grandSubmission():
 	analysisRecordId = getAnalysisId(searchResultDict, datasetRecordId, toolRecordId, mysql)
 
 	return(str(analysisRecordId))
+
+##############################
+##### 2.3 APIs
+##############################
+
+### 2.3.1 Datasets API
+@app.route('/datasets', methods=['GET', 'POST'])
+def datasets():
+	# Get Search Parameters in Dictionary
+	searchParameterDict = dict(urlparse.parse_qsl(request.query_string))
+
+	# Get Dataset IDs
+	datasetIds = getRecordIds(searchParameterDict, 'dataset', mysql)
+
+	return datasetIds
+
+### 2.3.2 Canned Analysis API
+@app.route('/canned_analyses')
+def canned_analyses():
+	# Get Search Parameters in Dictionary
+	searchParameterDict = dict(urlparse.parse_qsl(request.query_string))
+
+	# Get Canned Analysis IDs
+	cannedAnalysisUrls = getRecordIds(searchParameterDict, 'canned_analysis', mysql, field='canned_analysis_url')
+
+	return cannedAnalysisUrls
 
 #######################################################
 ########## 3. Run Flask App ###########################
